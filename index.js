@@ -68,22 +68,22 @@ const wssClient = new WebSocket.Server({
 
 wssAdmin.on('connection', function connection(ws) {
   adminWS = ws;
-  ws.on('message', function incoming(message) {
+  adminWS.on('message', function incoming(message) {
     console.log('Admin received: %s', message);
 
     clientWS.send(message);
   });
 
-  ws.send('I need your help!');
+  adminWS.send('I need your help!');
 });
 
 wssClient.on('connection', function connection(ws) {
   clientWS = ws;
-  ws.on('message', function incoming(message) {
+  clientWS.on('message', function incoming(message) {
     console.log('Client received: %s', message);
 
     adminWS.send(message);
   });
 
-  ws.send('We can help you!');
+  clientWS.send('We can help you!');
 });
