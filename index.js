@@ -1,30 +1,89 @@
 const http = require('http');
 const fs = require('fs');
 const WebSocket = require('ws');
+var adminWS;
+var clientWS;
 
-const wss = new WebSocket.Server({
-  port: 8080
+var setAdminServer = function(request, response) {
+  fs.readFile('./admin/' + request.url, function(err, data) {
+    if (!err) {
+      var dotoffset = request.url.lastIndexOf('.');
+      var mimetype = dotoffset == -1 ?
+          'text/plain': {
+            '.html' : 'text/html',
+            '.ico' : 'image/x-icon',
+            '.jpg' : 'image/jpeg',
+            '.png' : 'image/png',
+            '.gif' : 'image/gif',
+            '.css' : 'text/css',
+            '.js' : 'text/javascript'
+          }[ request.url.substr(dotoffset) ];
+      response.setHeader('Content-type' , mimetype);
+      response.end(data);
+      console.log( request.url, mimetype );
+    } else {
+      console.log ('file not found: ' + request.url);
+      response.writeHead(404, "Not Found");
+      response.end();
+    }
+  });
+};
+
+var setClientServer = function(request, response) {
+  fs.readFile('./client/' + request.url, function(err, data) {
+    if (!err) {
+      var dotoffset = request.url.lastIndexOf('.');
+      var mimetype = dotoffset == -1 ?
+          'text/plain': {
+            '.html' : 'text/html',
+            '.ico' : 'image/x-icon',
+            '.jpg' : 'image/jpeg',
+            '.png' : 'image/png',
+            '.gif' : 'image/gif',
+            '.css' : 'text/css',
+            '.js' : 'text/javascript'
+          }[ request.url.substr(dotoffset) ];
+      response.setHeader('Content-type' , mimetype);
+      response.end(data);
+      console.log( request.url, mimetype );
+    } else {
+      console.log ('file not found: ' + request.url);
+      response.writeHead(404, "Not Found");
+      response.end();
+    }
+  });
+};
+
+
+var adminServer = http.createServer(setAdminServer).listen(8080);
+var clientServer = http.createServer(setClientServer).listen(8081);
+
+const wssAdmin = new WebSocket.Server({
+  server: adminServer
 });
 
-wss.on('connection', function connection(ws) {
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
+const wssClient = new WebSocket.Server({
+  server: clientServer
+});
 
-    ws.send('Okay, let me check it.');
+wssAdmin.on('connection', function connection(ws) {
+  adminWS = ws;
+  ws.on('message', function incoming(message) {
+    console.log('Admin received: %s', message);
+
+    clientWS.send(message);
+  });
+
+  ws.send('I need your help!');
+});
+
+wssClient.on('connection', function connection(ws) {
+  clientWS = ws;
+  ws.on('message', function incoming(message) {
+    console.log('Client received: %s', message);
+
+    adminWS.send(message);
   });
 
   ws.send('We can help you!');
 });
-
-fs.readFile('./index.html', function (err, html) {
-  if (err) {
-    throw err;
-  }
-
-  http.createServer(function(request, response) {
-    response.writeHeader(200, {"Content-Type": "text/html"});
-    response.write(html);
-    response.end();
-  }).listen(8000);
-});
-
