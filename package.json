@@ -1,0 +1,21 @@
+{
+  "name": "websockets-sample",
+  "version": "1.0.0",
+  "description": "A test for WebSocket communication.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cchungmin/web-socket-chat.git"
+  },
+  "keywords": [
+    "WebSocket"
+  ],
+  "author": "Chung-Min Cheng",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^3.0.0"
+  }
+}
