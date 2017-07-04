@@ -5,6 +5,18 @@ A quick chat test of using WebSocket
 
 ```
 npm install nodemon -g
-npm install http-server -g
 npm install --save ws
 ```
+
+## Run server
+
+```
+nodemon index.js
+```
+
+## Access the server
+
+Default Admin: localhost:8080
+Default Client: localhost:8081
+
+Then Chat!
